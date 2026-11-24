@@ -1,2 +1,4 @@
+# Ignore rust stuff
+croakHop-core/target/
 # Ignore the wakatime stuff
 .wakatime-project
