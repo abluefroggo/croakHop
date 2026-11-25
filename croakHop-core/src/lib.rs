@@ -1,13 +1,32 @@
-struct Pond {
+pub struct Pond {
     p_grid: Vec<char>,
     row: usize,
     col: usize,
 }
-struct Frog {
+pub struct Frog {
     x: isize,
     y: isize,
     dx: isize,
     dy: isize,
+}
+
+pub fn hop(f: &mut Frog, p: &Pond) -> () {
+    f.x += f.dx;
+    if (f.x >= p.col as isize) {
+        f.x = p.col as isize - 1;
+    } else if (f.x < 0) {
+        f.x = 0;
+    }
+    f.y += f.dy;
+    if (f.y >= p.row as isize) {
+        f.y = p.row as isize - 1;
+    } else if (f.y < 0) {
+        f.y = 0;
+    }
+}
+
+pub fn to_idx(f: &Frog, p: &Pond) -> usize {
+    f.y as usize * p.col + f.x as usize
 }
 
 pub fn parse_str_vec(inp: &str) -> Vec<char> {
@@ -17,10 +36,10 @@ pub fn parse_str_vec(inp: &str) -> Vec<char> {
     }
     out
 }
-pub fn to_outpt(inp: Vec<char>, row: usize, col: usize) -> () {
-    for i in 0..row {
-        for j in 0..col {
-            print!("{}", inp[i * col + j]);
+pub fn to_outpt(p: &Pond) -> () {
+    for i in 0..p.row {
+        for j in 0..p.col {
+            print!("{}", p.p_grid[i * p.col + j]);
         }
         println!();
     }
@@ -36,8 +55,21 @@ mod tests {
         let row: usize = 4;
         let col: usize = 4;
         let inp: String = "......++.+......".to_string();
-        println!("Hello world");
-        to_outpt(parse_str_vec(inp.as_str()), row, col);
+        let mut np: Pond = Pond {
+            p_grid: parse_str_vec(inp.as_str()),
+            row: row,
+            col: col,
+        };
+        let mut nf: Frog = Frog {
+            x: 0,
+            y: 0,
+            dx: 1,
+            dy: 0,
+        };
+        hop(&mut nf, &np);
+
+        println!("{} {}", nf.x, nf.y);
+
         assert_eq!(parse_str_vec(inp.as_str()).len(), row * col);
     }
 }
