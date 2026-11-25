@@ -29,6 +29,20 @@ pub fn to_idx(f: &Frog, p: &Pond) -> usize {
     f.y as usize * p.col + f.x as usize
 }
 
+pub fn step(f: &mut Frog, p: &Pond) -> bool {
+    let ctile: char = p.p_grid[to_idx(f, p)];
+    if (ctile == '.') {
+    } else if (ctile == '+') {
+        let old_dx = f.dx;
+        f.dx = -f.dy;
+        f.dy = old_dx;
+    } else if (ctile == '@') {
+        return false;
+    }
+    hop(f, p);
+    true
+}
+
 pub fn parse_str_vec(inp: &str) -> Vec<char> {
     let mut out: Vec<char> = vec![];
     for i in inp.chars() {
@@ -36,10 +50,14 @@ pub fn parse_str_vec(inp: &str) -> Vec<char> {
     }
     out
 }
-pub fn to_outpt(p: &Pond) -> () {
+pub fn to_outpt(f: &Frog, p: &Pond) -> () {
     for i in 0..p.row {
         for j in 0..p.col {
-            print!("{}", p.p_grid[i * p.col + j]);
+            if (f.x == j as isize && f.y == i as isize) {
+                print!("o")
+            } else {
+                print!("{}", p.p_grid[i * p.col + j]);
+            }
         }
         println!();
     }
@@ -54,7 +72,7 @@ mod tests {
     fn it_works() {
         let row: usize = 4;
         let col: usize = 4;
-        let inp: String = "......++.+......".to_string();
+        let inp: String = ".+....++.+...@.+".to_string();
         let mut np: Pond = Pond {
             p_grid: parse_str_vec(inp.as_str()),
             row: row,
@@ -64,11 +82,12 @@ mod tests {
             x: 0,
             y: 0,
             dx: 1,
-            dy: 0,
+            dy: 1,
         };
-        hop(&mut nf, &np);
-
-        println!("{} {}", nf.x, nf.y);
+        while step(&mut nf, &np) {
+            println!("x: {} y: {} dx: {} dy: {}", nf.x, nf.y, nf.dx, nf.dy);
+            to_outpt(&nf, &np);
+        }
 
         assert_eq!(parse_str_vec(inp.as_str()).len(), row * col);
     }
