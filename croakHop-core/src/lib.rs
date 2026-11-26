@@ -9,7 +9,23 @@ pub struct Frog {
     dx: isize,
     dy: isize,
 }
+pub fn parse_input(inp: &str) -> Pond {
+    let lines: Vec<&str> = inp.lines().filter(|l| !l.trim().is_empty()).collect();
+    let r: usize = lines.len();
+    let c: usize = lines.first().map_or(0, |l| l.chars().count());
 
+    let mut out: Vec<char> = vec![];
+    for l in lines {
+        for ch in l.chars() {
+            out.push(ch);
+        }
+    }
+    Pond {
+        p_grid: out,
+        row: r,
+        col: c,
+    }
+}
 pub fn hop(f: &mut Frog, p: &Pond) -> () {
     f.x += f.dx;
     if (f.x >= p.col as isize) {
@@ -72,7 +88,7 @@ mod tests {
     fn it_works() {
         let row: usize = 4;
         let col: usize = 4;
-        let inp: String = ".+....++.+...@.+".to_string();
+        let inp: String = ".+....++.+.....+".to_string();
         let mut np: Pond = Pond {
             p_grid: parse_str_vec(inp.as_str()),
             row: row,
@@ -84,9 +100,11 @@ mod tests {
             dx: 1,
             dy: 1,
         };
-        while step(&mut nf, &np) {
+        let mut steps: usize = 0;
+        while step(&mut nf, &np) && steps < 100 {
             println!("x: {} y: {} dx: {} dy: {}", nf.x, nf.y, nf.dx, nf.dy);
             to_outpt(&nf, &np);
+            steps += 1;
         }
 
         assert_eq!(parse_str_vec(inp.as_str()).len(), row * col);
