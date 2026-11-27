@@ -10,6 +10,23 @@ pub struct Frog {
     pub dy: isize,
     pub lp_stack: Vec<i64>,
 }
+
+pub struct Interpreter {
+    p: Pond,
+    f: Frog,
+    out: Vec<String>,
+    steps: usize,
+    state: String,
+}
+
+pub fn parse_str_vec(inp: &str) -> Vec<char> {
+    let mut out: Vec<char> = vec![];
+    for i in inp.chars() {
+        out.push(i);
+    }
+    out
+}
+
 pub fn parse_input(inp: &str) -> Pond {
     let lines: Vec<&str> = inp.lines().filter(|l| !l.trim().is_empty()).collect();
     let r: usize = lines.len();
@@ -27,6 +44,11 @@ pub fn parse_input(inp: &str) -> Pond {
         col: c,
     }
 }
+
+pub fn to_idx(f: &Frog, p: &Pond) -> usize {
+    f.y as usize * p.col + f.x as usize
+}
+
 pub fn hop(f: &mut Frog, p: &Pond) -> () {
     f.x += f.dx;
     if (f.x >= p.col as isize) {
@@ -46,11 +68,8 @@ pub fn hop(f: &mut Frog, p: &Pond) -> () {
     }
 }
 
-pub fn to_idx(f: &Frog, p: &Pond) -> usize {
-    f.y as usize * p.col + f.x as usize
-}
-
 pub fn step(f: &mut Frog, p: &Pond) -> bool {
+    hop(f, p);
     let ctile: char = p.p_grid[to_idx(f, p)];
     if (ctile == '.') {
     } else if (ctile == '@') {
@@ -80,22 +99,36 @@ pub fn step(f: &mut Frog, p: &Pond) -> bool {
         let a = f.lp_stack.pop().unwrap_or(0);
         let b = f.lp_stack.pop().unwrap_or(0);
         f.lp_stack.push(a * b);
+    } else if (ctile == '-') {
+        let a = f.lp_stack.pop().unwrap_or(0);
+        let b = f.lp_stack.pop().unwrap_or(0);
+        f.lp_stack.push(b - a);
+    } else if (ctile == '/') {
+        let a = f.lp_stack.pop().unwrap_or(0);
+        let b = f.lp_stack.pop().unwrap_or(0);
+        if a == 0 {
+            f.lp_stack.push(b);
+        } else {
+            f.lp_stack.push(b / a);
+        }
+    } else if (ctile == '%') {
+        let a = f.lp_stack.pop().unwrap_or(0);
+        let b = f.lp_stack.pop().unwrap_or(0);
+        if a == 0 {
+            f.lp_stack.push(b);
+        } else {
+            f.lp_stack.push(b % a);
+        }
     } else if (ctile == 'p') {
         println!("{}", f.lp_stack.pop().unwrap_or(0));
+    } else if (ctile == 'a') {
+        println!("{}", f.lp_stack.pop().unwrap_or(0) as u8 as char);
     } else if (ctile == '#') {
         return false;
     }
-    hop(f, p);
     true
 }
 
-pub fn parse_str_vec(inp: &str) -> Vec<char> {
-    let mut out: Vec<char> = vec![];
-    for i in inp.chars() {
-        out.push(i);
-    }
-    out
-}
 pub fn to_outpt(f: &Frog, p: &Pond) -> () {
     for i in 0..p.row {
         for j in 0..p.col {

@@ -11,7 +11,7 @@ fn main() -> () {
     let mut nf: Frog = Frog {
         x: 0,
         y: 0,
-        dx: 4,
+        dx: 1,
         dy: 1,
         lp_stack: vec![],
     };

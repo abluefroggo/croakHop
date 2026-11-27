@@ -1,4 +1,6 @@
-2D esoteric language where a frog hops across a lilypad grid, croaking out values.
+Stack based 2D esoteric programming language where a frog hops across a lilypad grid, croaking out values.
+
+Read [LANGUAGE_SPEC.md](./LANGUAGE_SPEC.md) to see language specifications.
 
 | Tile | Action |
 | :--- | :--- |
@@ -11,4 +13,5 @@
 | '+' | frog compounds the last two values in stack |
 | '*' | frog multiplies last two values in stack |
 | 'p' | frog belches out the last fly |
+| 'a' | frog belches out the last as its ASCII equivalent |
 | '#' | frog is done eating and ends the run |
