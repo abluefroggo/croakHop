@@ -11,8 +11,9 @@ fn main() -> () {
     let mut nf: Frog = Frog {
         x: 0,
         y: 0,
-        dx: 2,
+        dx: 4,
         dy: 1,
+        lp_stack: vec![],
     };
     let np = parse_input(content.as_str());
     let mut steps: usize = 0;

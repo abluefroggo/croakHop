@@ -53,11 +53,36 @@ pub fn to_idx(f: &Frog, p: &Pond) -> usize {
 pub fn step(f: &mut Frog, p: &Pond) -> bool {
     let ctile: char = p.p_grid[to_idx(f, p)];
     if (ctile == '.') {
-    } else if (ctile == '+') {
+    } else if (ctile == '@') {
         let old_dx = f.dx;
         f.dx = -f.dy;
         f.dy = old_dx;
-    } else if (ctile == '@') {
+    } else if (ctile == ':') {
+        let t = f.lp_stack.last().copied().unwrap_or(0);
+        f.lp_stack.push(t);
+    } else if (ctile.is_ascii_digit()) {
+        f.lp_stack.push(ctile as i64 - 48);
+    } else if (ctile == 's') {
+        if f.lp_stack.len() > 1 {
+            let idxa = f.lp_stack.len() - 1;
+            let idxb = idxa - 1;
+            let temp = f.lp_stack[idxb];
+            f.lp_stack[idxb] = f.lp_stack[idxa];
+            f.lp_stack[idxa] = temp;
+        }
+    } else if (ctile == 'x') {
+        f.lp_stack.pop();
+    } else if (ctile == '+') {
+        let a = f.lp_stack.pop().unwrap_or(0);
+        let b = f.lp_stack.pop().unwrap_or(0);
+        f.lp_stack.push(a + b);
+    } else if (ctile == '*') {
+        let a = f.lp_stack.pop().unwrap_or(0);
+        let b = f.lp_stack.pop().unwrap_or(0);
+        f.lp_stack.push(a * b);
+    } else if (ctile == 'p') {
+        println!("{}", f.lp_stack.pop().unwrap_or(0));
+    } else if (ctile == '#') {
         return false;
     }
     hop(f, p);
@@ -104,6 +129,7 @@ mod tests {
             y: 0,
             dx: 1,
             dy: 1,
+            lp_stack: vec![],
         };
         let mut steps: usize = 0;
         while step(&mut nf, &np) && steps < 100 {
