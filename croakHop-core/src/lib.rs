@@ -4,10 +4,11 @@ pub struct Pond {
     col: usize,
 }
 pub struct Frog {
-    x: isize,
-    y: isize,
-    dx: isize,
-    dy: isize,
+    pub x: isize,
+    pub y: isize,
+    pub dx: isize,
+    pub dy: isize,
+    pub lp_stack: Vec<i64>,
 }
 pub fn parse_input(inp: &str) -> Pond {
     let lines: Vec<&str> = inp.lines().filter(|l| !l.trim().is_empty()).collect();
@@ -30,14 +31,18 @@ pub fn hop(f: &mut Frog, p: &Pond) -> () {
     f.x += f.dx;
     if (f.x >= p.col as isize) {
         f.x = p.col as isize - 1;
+        f.dx = -f.dx;
     } else if (f.x < 0) {
         f.x = 0;
+        f.dx = -f.dx;
     }
     f.y += f.dy;
     if (f.y >= p.row as isize) {
         f.y = p.row as isize - 1;
+        f.dy = -f.dy;
     } else if (f.y < 0) {
         f.y = 0;
+        f.dy = -f.dy;
     }
 }
 
