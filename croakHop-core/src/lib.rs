@@ -1,3 +1,5 @@
+pub mod interpreter;
+
 pub struct Pond {
     p_grid: Vec<char>,
     row: usize,
@@ -12,11 +14,11 @@ pub struct Frog {
 }
 
 pub struct Interpreter {
-    p: Pond,
-    f: Frog,
-    out: Vec<String>,
-    steps: usize,
-    state: String,
+    pub p: Pond,
+    pub f: Frog,
+    pub out: Vec<String>,
+    pub steps: usize,
+    pub state: String,
 }
 
 pub fn parse_str_vec(inp: &str) -> Vec<char> {

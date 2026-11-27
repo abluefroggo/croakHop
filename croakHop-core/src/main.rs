@@ -5,21 +5,13 @@ use std::fs;
 fn main() -> () {
     let args: Vec<String> = env::args().collect();
     let path = &args[1];
+    let steps_lim: usize = args[2]
+        .parse()
+        .expect("steps limit must be a positive integer");
     println!("{}", path);
     let content = fs::read_to_string(path).expect("File read error");
     println!("{content}");
-    let mut nf: Frog = Frog {
-        x: 0,
-        y: 0,
-        dx: 1,
-        dy: 1,
-        lp_stack: vec![],
-    };
-    let np = parse_input(content.as_str());
-    let mut steps: usize = 0;
-    while step(&mut nf, &np) && steps < 100 {
-        println!("x: {} y: {} dx: {} dy: {}", nf.x, nf.y, nf.dx, nf.dy);
-        to_outpt(&nf, &np);
-        steps += 1;
-    }
+    let pond = parse_input(&content);
+    let mut interpreter = Interpreter::new(pond);
+    interpreter.run(steps_lim)
 }
