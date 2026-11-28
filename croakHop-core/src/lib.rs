@@ -8,6 +8,80 @@ enum ExecutionState {
     StepLimitReached,
 }
 
+enum Instruction {
+    Empty,
+    Turn,
+    Up,
+    Down,
+    Left,
+    Right,
+    Accelerate,
+    Duplicate,
+    Push(i64),
+    Swap,
+    Pop,
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+    Modulo,
+    OutputNum,
+    OutputASCII,
+    Halt,
+}
+
+impl Instruction {
+    pub fn from_char(ctile: char) -> Instruction {
+        if ctile.is_ascii_digit() {
+            Instruction::Push(ctile as i64 - 48)
+        } else {
+            match ctile {
+                '.' => Instruction::Empty,
+                '@' => Instruction::Turn,
+                '^' => Instruction::Up,
+                'v' => Instruction::Down,
+                '<' => Instruction::Left,
+                '>' => Instruction::Right,
+                'c' => Instruction::Accelerate,
+                ':' => Instruction::Duplicate,
+                's' => Instruction::Swap,
+                'x' => Instruction::Pop,
+                '+' => Instruction::Add,
+                '-' => Instruction::Subtract,
+                '*' => Instruction::Multiply,
+                '/' => Instruction::Divide,
+                '%' => Instruction::Modulo,
+                'p' => Instruction::OutputNum,
+                'a' => Instruction::OutputASCII,
+                '#' => Instruction::Halt,
+                _ => Instruction::Empty,
+            }
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct ExecutionSnapshot {
+    pub step: usize,
+    pub x: isize,
+    pub y: isize,
+
+    pub dx: isize,
+    pub dy: isize,
+
+    pub stack: Vec<i64>,
+    pub output: Vec<String>,
+    pub instruction: char,
+}
+pub struct Interpreter {
+    pub p: Pond,
+    pub f: Frog,
+    pub out: Vec<String>,
+    pub steps: usize,
+    pub state: ExecutionState,
+    pub history: Vec<ExecutionSnapshot>,
+}
+
 pub struct Pond {
     p_grid: Vec<char>,
     row: usize,
@@ -19,14 +93,6 @@ pub struct Frog {
     pub dx: isize,
     pub dy: isize,
     pub lp_stack: Vec<i64>,
-}
-
-pub struct Interpreter {
-    pub p: Pond,
-    pub f: Frog,
-    pub out: Vec<String>,
-    pub steps: usize,
-    pub state: ExecutionState,
 }
 
 pub fn parse_str_vec(inp: &str) -> Vec<char> {
@@ -104,7 +170,7 @@ pub fn step(f: &mut Frog, p: &Pond) -> bool {
         if f.dx == 0 {
             f.dx = -1;
         }
-    } else if (ctile == '<') {
+    } else if (ctile == '>') {
         f.dx = f.dx.abs();
         f.dy = 0;
         if f.dx == 0 {
