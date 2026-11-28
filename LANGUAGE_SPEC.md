@@ -16,6 +16,8 @@ Every hop, froggo goes through this process:
 | :--- | :--- |
 | '.' | continues, no action |
 | '@' | frog turns 90 degrees on the lilypad |
+| '^ v' | frog points in that direction, preserving its velocity. dx is set to 0. If dy = 0, dy will have a speed of 1. |
+| '< >' | frog points in that direction, preserving its velocity. dy is set to 0. If dx = 0, dx will have a speed of 1. |
 | ':' | frog duplicates last value in its fly stack |
 | '0-9' | frog eats that many flies and pushes the value into its stack |
 | 's' | frog forgets the last two flies that it ate, and switches their values |
@@ -28,3 +30,4 @@ Every hop, froggo goes through this process:
 | 'p' | frog belches (pops) out the last fly |
 | 'a' | frog belches (pops) out the last as its ASCII equivalent |
 | '#' | frog is done eating and ends the run |
+| 'c' | multiplies velocity of frog by a factor of 2 (dx * 2, dy * 2) |

@@ -1,4 +1,12 @@
+pub mod frog;
 pub mod interpreter;
+
+enum ExecutionState {
+    Running,
+    Halted,
+    Error(String),
+    StepLimitReached,
+}
 
 pub struct Pond {
     p_grid: Vec<char>,
@@ -18,7 +26,7 @@ pub struct Interpreter {
     pub f: Frog,
     pub out: Vec<String>,
     pub steps: usize,
-    pub state: String,
+    pub state: ExecutionState,
 }
 
 pub fn parse_str_vec(inp: &str) -> Vec<char> {
@@ -78,6 +86,33 @@ pub fn step(f: &mut Frog, p: &Pond) -> bool {
         let old_dx = f.dx;
         f.dx = -f.dy;
         f.dy = old_dx;
+    } else if (ctile == '^') {
+        f.dx = 0;
+        f.dy = -f.dy.abs();
+        if f.dy == 0 {
+            f.dy = -1;
+        }
+    } else if (ctile == 'v') {
+        f.dx = 0;
+        f.dy = f.dy.abs();
+        if f.dy == 0 {
+            f.dy = 1;
+        }
+    } else if (ctile == '<') {
+        f.dx = -f.dx.abs();
+        f.dy = 0;
+        if f.dx == 0 {
+            f.dx = -1;
+        }
+    } else if (ctile == '<') {
+        f.dx = f.dx.abs();
+        f.dy = 0;
+        if f.dx == 0 {
+            f.dx = 1;
+        }
+    } else if (ctile == 'c') {
+        f.dx *= 2;
+        f.dy *= 2;
     } else if (ctile == ':') {
         let t = f.lp_stack.last().copied().unwrap_or(0);
         f.lp_stack.push(t);
@@ -122,9 +157,9 @@ pub fn step(f: &mut Frog, p: &Pond) -> bool {
             f.lp_stack.push(b % a);
         }
     } else if (ctile == 'p') {
-        println!("{}", f.lp_stack.pop().unwrap_or(0));
+        print!("{}", f.lp_stack.pop().unwrap_or(0));
     } else if (ctile == 'a') {
-        println!("{}", f.lp_stack.pop().unwrap_or(0) as u8 as char);
+        print!("{}", f.lp_stack.pop().unwrap_or(0) as u8 as char);
     } else if (ctile == '#') {
         return false;
     }
