@@ -2,7 +2,13 @@ use crate::*;
 
 impl Interpreter {
     pub fn new(p: Pond) -> Self {
-        let nf: Frog = Frog::new();
+        let nf: Frog = Frog {
+            x: p.sx as isize,
+            y: p.sy as isize,
+            dx: 1,
+            dy: 0,
+            lp_stack: vec![],
+        };
         let mut interpreter = Self {
             p: p,
             f: nf,

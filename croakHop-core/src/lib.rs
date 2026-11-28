@@ -87,6 +87,8 @@ pub struct Pond {
     p_grid: Vec<char>,
     row: usize,
     col: usize,
+    sx: usize,
+    sy: usize,
 }
 pub struct Frog {
     pub x: isize,
@@ -108,17 +110,28 @@ pub fn parse_input(inp: &str) -> Pond {
     let lines: Vec<&str> = inp.lines().filter(|l| !l.trim().is_empty()).collect();
     let r: usize = lines.len();
     let c: usize = lines.first().map_or(0, |l| l.chars().count());
-
+    let mut sx = 0;
+    let mut sy = 0;
+    let mut ln = 0;
+    let mut cn = 0;
     let mut out: Vec<char> = vec![];
     for l in lines {
         for ch in l.chars() {
             out.push(ch);
+            if (ch == 'o') {
+                sx = cn % c;
+                sy = ln % r;
+            }
+            cn += 1;
         }
+        ln += 1;
     }
     Pond {
         p_grid: out,
         row: r,
         col: c,
+        sx: sx,
+        sy: sy,
     }
 }
 
