@@ -1,7 +1,7 @@
 pub mod frog;
 pub mod interpreter;
 
-enum ExecutionState {
+pub enum ExecutionState {
     Running,
     Halted,
     Error(String),
@@ -116,6 +116,7 @@ pub fn parse_input(inp: &str) -> Pond {
     let mut cn = 0;
     let mut out: Vec<char> = vec![];
     for l in lines {
+        cn = 0;
         for ch in l.chars() {
             out.push(ch);
             if (ch == 'o') {
@@ -123,7 +124,9 @@ pub fn parse_input(inp: &str) -> Pond {
                 sy = ln % r;
             }
             cn += 1;
+            assert!(cn <= c, "Row lengths dont match up.");
         }
+        assert_eq!(cn, c, "Row lengths dont match up");
         ln += 1;
     }
     Pond {
@@ -156,94 +159,6 @@ pub fn hop(f: &mut Frog, p: &Pond) -> () {
         f.y = 0;
         f.dy = -f.dy;
     }
-}
-
-pub fn step(f: &mut Frog, p: &Pond) -> bool {
-    hop(f, p);
-    let ctile: char = p.p_grid[to_idx(f, p)];
-    if (ctile == '.') {
-    } else if (ctile == '@') {
-        let old_dx = f.dx;
-        f.dx = -f.dy;
-        f.dy = old_dx;
-    } else if (ctile == '^') {
-        f.dx = 0;
-        f.dy = -f.dy.abs();
-        if f.dy == 0 {
-            f.dy = -1;
-        }
-    } else if (ctile == 'v') {
-        f.dx = 0;
-        f.dy = f.dy.abs();
-        if f.dy == 0 {
-            f.dy = 1;
-        }
-    } else if (ctile == '<') {
-        f.dx = -f.dx.abs();
-        f.dy = 0;
-        if f.dx == 0 {
-            f.dx = -1;
-        }
-    } else if (ctile == '>') {
-        f.dx = f.dx.abs();
-        f.dy = 0;
-        if f.dx == 0 {
-            f.dx = 1;
-        }
-    } else if (ctile == 'c') {
-        f.dx *= 2;
-        f.dy *= 2;
-    } else if (ctile == ':') {
-        let t = f.lp_stack.last().copied().unwrap_or(0);
-        f.lp_stack.push(t);
-    } else if (ctile.is_ascii_digit()) {
-        f.lp_stack.push(ctile as i64 - 48);
-    } else if (ctile == 's') {
-        if f.lp_stack.len() > 1 {
-            let idxa = f.lp_stack.len() - 1;
-            let idxb = idxa - 1;
-            let temp = f.lp_stack[idxb];
-            f.lp_stack[idxb] = f.lp_stack[idxa];
-            f.lp_stack[idxa] = temp;
-        }
-    } else if (ctile == 'x') {
-        f.lp_stack.pop();
-    } else if (ctile == '+') {
-        let a = f.lp_stack.pop().unwrap_or(0);
-        let b = f.lp_stack.pop().unwrap_or(0);
-        f.lp_stack.push(a + b);
-    } else if (ctile == '*') {
-        let a = f.lp_stack.pop().unwrap_or(0);
-        let b = f.lp_stack.pop().unwrap_or(0);
-        f.lp_stack.push(a * b);
-    } else if (ctile == '-') {
-        let a = f.lp_stack.pop().unwrap_or(0);
-        let b = f.lp_stack.pop().unwrap_or(0);
-        f.lp_stack.push(b - a);
-    } else if (ctile == '/') {
-        let a = f.lp_stack.pop().unwrap_or(0);
-        let b = f.lp_stack.pop().unwrap_or(0);
-        if a == 0 {
-            f.lp_stack.push(b);
-        } else {
-            f.lp_stack.push(b / a);
-        }
-    } else if (ctile == '%') {
-        let a = f.lp_stack.pop().unwrap_or(0);
-        let b = f.lp_stack.pop().unwrap_or(0);
-        if a == 0 {
-            f.lp_stack.push(b);
-        } else {
-            f.lp_stack.push(b % a);
-        }
-    } else if (ctile == 'p') {
-        print!("{}", f.lp_stack.pop().unwrap_or(0));
-    } else if (ctile == 'a') {
-        print!("{}", f.lp_stack.pop().unwrap_or(0) as u8 as char);
-    } else if (ctile == '#') {
-        return false;
-    }
-    true
 }
 
 pub fn to_outpt(f: &Frog, p: &Pond) -> () {
