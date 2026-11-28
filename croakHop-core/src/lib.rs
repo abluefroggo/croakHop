@@ -8,7 +8,8 @@ enum ExecutionState {
     StepLimitReached,
 }
 
-enum Instruction {
+#[derive(Clone, Debug, Copy, PartialEq, Eq)]
+pub enum Instruction {
     Empty,
     Turn,
     Up,
@@ -71,7 +72,7 @@ pub struct ExecutionSnapshot {
 
     pub stack: Vec<i64>,
     pub output: Vec<String>,
-    pub instruction: char,
+    pub instruction: Instruction,
 }
 pub struct Interpreter {
     pub p: Pond,

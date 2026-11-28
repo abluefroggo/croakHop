@@ -11,11 +11,11 @@ impl Interpreter {
             state: crate::ExecutionState::Running,
             history: vec![],
         };
-        interpreter.save_snapshot('.');
+        interpreter.save_snapshot(Instruction::Empty);
         interpreter
     }
 
-    pub fn save_snapshot(&mut self, ins: char) {
+    pub fn save_snapshot(&mut self, ins: Instruction) {
         let snapshot = ExecutionSnapshot {
             step: self.steps,
             x: self.f.x,
@@ -28,13 +28,123 @@ impl Interpreter {
         };
         self.history.push(snapshot);
     }
-
     pub fn step(&mut self) -> bool {
-        crate::step(&mut self.f, &self.p)
+        hop(&mut self.f, &self.p);
+        let ctile: char = self.p.p_grid[to_idx(&self.f, &self.p)];
+        let ins: Instruction = Instruction::from_char(ctile);
+        match ins {
+            Instruction::Empty => {}
+            Instruction::Turn => {
+                let old_dx = self.f.dx;
+                self.f.dx = -self.f.dy;
+                self.f.dy = old_dx;
+            }
+            Instruction::Up => {
+                self.f.dx = 0;
+                self.f.dy = -self.f.dy.abs();
+                if self.f.dy == 0 {
+                    self.f.dy = -1;
+                }
+            }
+            Instruction::Down => {
+                self.f.dx = 0;
+                self.f.dy = self.f.dy.abs();
+                if self.f.dy == 0 {
+                    self.f.dy = 1;
+                }
+            }
+            Instruction::Left => {
+                self.f.dx = -self.f.dx.abs();
+                self.f.dy = 0;
+                if self.f.dx == 0 {
+                    self.f.dx = -1
+                }
+            }
+            Instruction::Right => {
+                self.f.dx = self.f.dx.abs();
+                self.f.dy = 0;
+                if self.f.dx == 0 {
+                    self.f.dx = 1;
+                }
+            }
+            Instruction::Accelerate => {
+                self.f.dx *= 2;
+                self.f.dy *= 2;
+            }
+            Instruction::Duplicate => {
+                let t = self.f.lp_stack.last().copied().unwrap_or(0);
+                self.f.lp_stack.push(t);
+            }
+            Instruction::Push(n) => {
+                self.f.lp_stack.push(n);
+            }
+            Instruction::Swap => {
+                if self.f.lp_stack.len() > 1 {
+                    let idxa = self.f.lp_stack.len() - 1;
+                    let idxb = idxa - 1;
+                    let temp = self.f.lp_stack[idxb];
+                    self.f.lp_stack[idxb] = self.f.lp_stack[idxa];
+                    self.f.lp_stack[idxa] = temp;
+                }
+            }
+            Instruction::Pop => {
+                self.f.lp_stack.pop();
+            }
+            Instruction::Add => {
+                let a = self.f.lp_stack.pop().unwrap_or(0);
+                let b = self.f.lp_stack.pop().unwrap_or(0);
+                self.f.lp_stack.push(a + b);
+            }
+            Instruction::Multiply => {
+                let a = self.f.lp_stack.pop().unwrap_or(0);
+                let b = self.f.lp_stack.pop().unwrap_or(0);
+                self.f.lp_stack.push(a * b);
+            }
+            Instruction::Subtract => {
+                let a = self.f.lp_stack.pop().unwrap_or(0);
+                let b = self.f.lp_stack.pop().unwrap_or(0);
+                self.f.lp_stack.push(b - a);
+            }
+            Instruction::Divide => {
+                let a = self.f.lp_stack.pop().unwrap_or(0);
+                let b = self.f.lp_stack.pop().unwrap_or(0);
+                if a == 0 {
+                    self.f.lp_stack.push(b);
+                } else {
+                    self.f.lp_stack.push(b / a);
+                }
+            }
+            Instruction::Modulo => {
+                let a = self.f.lp_stack.pop().unwrap_or(0);
+                let b = self.f.lp_stack.pop().unwrap_or(0);
+                if a == 0 {
+                    self.f.lp_stack.push(b);
+                } else {
+                    self.f.lp_stack.push(b % a);
+                }
+            }
+            Instruction::OutputNum => {
+                self.out
+                    .push(self.f.lp_stack.pop().unwrap_or(0).to_string());
+            }
+            Instruction::OutputASCII => {
+                self.out
+                    .push((self.f.lp_stack.pop().unwrap_or(0) as u8 as char).to_string());
+            }
+            Instruction::Halt => {
+                self.save_snapshot(ins);
+                return false;
+            }
+        }
+        self.save_snapshot(ins);
+        true
     }
     pub fn run(&mut self, steps_limit: usize, verbose: bool) {
+        let mut running = true;
         while self.steps < steps_limit {
-            if !self.step() {
+            running = self.step();
+            self.steps += 1;
+            if !running {
                 self.state = crate::ExecutionState::Halted;
                 break;
             }
@@ -45,10 +155,12 @@ impl Interpreter {
                 );
                 to_outpt(&self.f, &self.p);
             }
-            self.steps += 1;
         }
-        if (self.steps >= steps_limit) {
+        if (self.steps >= steps_limit && running) {
             self.state = crate::ExecutionState::StepLimitReached;
+        }
+        for i in &self.out {
+            print!("{}", i);
         }
     }
 }
