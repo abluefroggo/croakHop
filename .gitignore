@@ -2,3 +2,4 @@
 croakHop-core/target/
 # Ignore the wakatime stuff
 .wakatime-project
+.DS_Store
